@@ -121,10 +121,10 @@ section {
 }
 
 .videoView {
-    position: relative;
+       margin: 0 auto;
+    text-align: center;
+        position: relative;
     float: left;
-    width: 48%;
-    margin: 2% 1%;
     cursor: pointer;
     min-height: 500px;
 }
@@ -516,15 +516,15 @@ tr:hover {
 
 .webcam-instructions {
     text-align: center;
-    margin: 2rem 0;
+    margin: 7rem 0;
     font-size: 1.1rem;
     color: #333;
 }
 
 #webcamButton {
-    margin: 1rem auto;
+margin: 1rem auto;
     display: block;
-    padding: 0.8rem 2rem;
+    padding: 1rem 0rem 3rem 0rem;
     font-size: 1.1rem;
 }
 
