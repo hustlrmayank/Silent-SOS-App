@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency Contacts - Silent SOS</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">Silent SOS</div>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="about.html">About</a>
+            <a href="contacts.html" class="active">Emergency Contacts</a>
+            <a href="location.html">Live Location</a>
+            <div class="profile-dropdown">
+                <button class="profile-btn">
+                    <img id="nav-profile-pic" src="" alt="Profile" class="nav-profile-pic">
+                    <span id="nav-user-email" class="user-email"></span>
+                </button>
+                <div class="dropdown-content">
+                    <a href="#" id="nav-signout">Sign Out</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="contacts-section">
+            <h1>Emergency Contacts</h1>
+            
+            <div class="contacts-form">
+                <h2>Add Emergency Contact</h2>
+                <form id="contact-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" id="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" pattern="[6-9][0-9]{9}" required>
+                            <span class="phone-hint">Enter 10-digit Indian mobile number starting with 6-9</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="relationship">Relationship</label>
+                            <input type="text" id="relationship" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="distress-message">Distress Message</label>
+                        <textarea id="distress-message" required>I need help! Please come immediately.</textarea>
+                        <span class="message-hint">This message will be sent to your emergency contacts when a distress signal is detected</span>
+                    </div>
+                    <button type="submit" class="mdc-button mdc-button--raised">
+                        <span class="mdc-button__ripple"></span>
+                        <span class="mdc-button__label">Add Contact</span>
+                    </button>
+                </form>
+            </div>
+
+            <div class="contacts-table">
+                <h2>Your Emergency Contacts</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Phone</th>
+                            <th>Relationship</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="contacts-table-body">
+                        <!-- Contacts will be added here dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Contact Modal -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Edit Contact</h2>
+            <form id="edit-contact-form">
+                <div class="form-group">
+                    <label for="edit-name">Name</label>
+                    <input type="text" id="edit-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-phone">Phone Number</label>
+                    <input type="tel" id="edit-phone" pattern="[6-9][0-9]{9}" required>
+                    <span class="phone-hint">Enter 10-digit Indian mobile number starting with 6-9</span>
+                </div>
+                <div class="form-group">
+                    <label for="edit-relationship">Relationship</label>
+                    <input type="text" id="edit-relationship" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-message">Distress Message</label>
+                    <textarea id="edit-message" required></textarea>
+                </div>
+                <button type="submit" class="mdc-button mdc-button--raised">
+                    <span class="mdc-button__ripple"></span>
+                    <span class="mdc-button__label">Save Changes</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="auth.js"></script>
+    <script src="contacts.js"></script>
+    <script>
+        // Check authentication status on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const navProfilePic = document.getElementById('nav-profile-pic');
+            const navUserEmail = document.getElementById('nav-user-email');
+            const navSignout = document.getElementById('nav-signout');
+            const profileDropdown = document.querySelector('.profile-dropdown');
+            
+            // Check if user is signed in
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    // Update profile display
+                    navProfilePic.src = user.photoURL || 'https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/default-profile.png';
+                    navUserEmail.textContent = user.email;
+                    
+                    // Show profile dropdown
+                    profileDropdown.style.display = 'block';
+                    
+                    // Add sign out functionality
+                    navSignout.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        auth.signOut()
+                            .then(() => {
+                                localStorage.removeItem('user');
+                                localStorage.removeItem('isAuthenticated');
+                                window.location.href = 'signin.html';
+                            })
+                            .catch((error) => {
+                                console.error('Sign out error:', error);
+                            });
+                    });
+                } else {
+                    // Hide profile dropdown and redirect to sign in
+                    profileDropdown.style.display = 'none';
+                    window.location.href = 'signin.html';
+                }
+            });
+
+            // Toggle dropdown on click
+            const profileBtn = document.querySelector('.profile-btn');
+            profileBtn.addEventListener('click', () => {
+                const dropdown = document.querySelector('.dropdown-content');
+                dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.profile-dropdown')) {
+                    const dropdown = document.querySelector('.dropdown-content');
+                    dropdown.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

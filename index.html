@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Silent SOS - Home</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css" rel="stylesheet">
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+  <script src="firebase-config.js"></script>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand">Silent SOS</div>
+    <div class="nav-links">
+      <a href="index.html" class="active">Home</a>
+      <a href="about.html">About</a>
+      <a href="contacts.html">Emergency Contacts</a>
+      <a href="location.html">Live Location</a>
+      <div class="profile-dropdown">
+        <button class="profile-btn">
+          <img id="nav-profile-pic" src="" alt="Profile" class="nav-profile-pic">
+          <span id="nav-user-email" class="user-email"></span>
+        </button>
+        <div class="dropdown-content">
+          <a href="#" id="nav-signout">Sign Out</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h1>Silent SOS - Emergency Gesture Recognition</h1>
+
+    <section id="demos" class="invisible">
+      <p class="webcam-instructions">
+        Use your hand to make gestures in front of the camera to get gesture classification.
+        <br>Click <b>enable webcam</b> below and grant access to the webcam if prompted.
+      </p>
+
+      <div class="webcam-container">
+        <div id="liveView" class="videoView">
+          <button id="webcamButton" class="mdc-button mdc-button--raised">
+            <span class="mdc-button__ripple"></span>
+            <span class="mdc-button__label">ENABLE WEBCAM</span>
+          </button>
+          <div class="video-container">
+            <video id="webcam" autoplay playsinline></video>
+            <canvas class="output_canvas" id="output_canvas" width="1280" height="720"></canvas>
+            <p id="gesture_output" class="output"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="distress-signals">
+      <h2>Distress Signals</h2>
+      <p>Learn the gestures that will trigger emergency alerts:</p>
+      
+      <div class="signal-grid">
+        <div class="signal-card">
+          <div class="signal-icon">✋</div>
+          <h3>Open Hand</h3>
+          <p>Hold your hand open with fingers spread to signal for help</p>
+        </div>
+        
+        <div class="signal-card">
+          <div class="signal-icon">✊</div>
+          <h3>Closed Fist</h3>
+          <p>Make a fist to signal an emergency situation</p>
+        </div>
+      </div>
+
+      <div class="emergency-info">
+        <h3>How to Use Distress Signals</h3>
+        <ol>
+          <li>Make sure you're in a well-lit area</li>
+          <li>Position your hand clearly in front of the camera</li>
+          <li>Hold the gesture for at least 2 seconds</li>
+          <li>Wait for the confirmation message</li>
+        </ol>
+        <p class="note">Note: When a distress signal is detected, the app will automatically send your location to your emergency contacts.</p>
+      </div>
+    </section>
+  </div>
+
+  <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
+  <script type="module" src="script.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="auth.js"></script>
+  <script type="module" src="palm-detection.js"></script>
+  <script>
+    // Check authentication status on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      const navProfilePic = document.getElementById('nav-profile-pic');
+      const navUserEmail = document.getElementById('nav-user-email');
+      const navSignout = document.getElementById('nav-signout');
+      const profileDropdown = document.querySelector('.profile-dropdown');
+      //document.getElementById('signout').click();
+      
+      // Check if user is signed in
+      auth.onAuthStateChanged((user) => {
+        if (user) {
+          // Update profile display
+          navProfilePic.src = user.photoURL || 'https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/default-profile.png';
+          navUserEmail.textContent = user.email;
+          
+          // Show profile dropdown
+          profileDropdown.style.display = 'block';
+          
+          // Add sign out functionality
+          navSignout.addEventListener('click', (e) => {
+            e.preventDefault();
+            auth.signOut()
+              .then(() => {
+                localStorage.removeItem('user');
+                localStorage.removeItem('isAuthenticated');
+                window.location.href = 'signin.html';
+              })
+              .catch((error) => {
+                console.error('Sign out error:', error);
+              });
+          });
+        } else {
+          // Hide profile dropdown and redirect to sign in
+          profileDropdown.style.display = 'none';
+          window.location.href = 'signin.html';
+        }
+      });
+
+      // Toggle dropdown on click
+      const profileBtn = document.querySelector('.profile-btn');
+      profileBtn.addEventListener('click', () => {
+        const dropdown = document.querySelector('.dropdown-content');
+        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.profile-dropdown')) {
+          const dropdown = document.querySelector('.dropdown-content');
+          dropdown.style.display = 'none';
+        }
+      });
+    });
+  </script>
+  <script src="palm-detection-compat.js"></script>
+</body>
+</html>

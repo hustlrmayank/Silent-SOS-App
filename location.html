@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Silent SOS - Live Location</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">Silent SOS</div>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="contacts.html">Emergency Contacts</a>
+            <a href="location.html" class="active">Live Location</a>
+            <a href="about.html">About</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Live Location Access</h1>
+        
+        <div class="location-container">
+            <div class="location-card">
+                <div class="location-header">
+                    <i class="material-icons">location_on</i>
+                    <h2>Your Current Location</h2>
+                </div>
+                
+                <div class="location-content">
+                    <div class="location-status">
+                        <p id="location-status">Location access not requested</p>
+                    </div>
+                    
+                    <div class="location-details" id="location-details" style="display: none;">
+                        <div class="location-info">
+                            <p><strong>Latitude:</strong> <span id="latitude">-</span></p>
+                            <p><strong>Longitude:</strong> <span id="longitude">-</span></p>
+                            <p><strong>Accuracy:</strong> <span id="accuracy">-</span> meters</p>
+                        </div>
+                    </div>
+                    
+                    <button id="get-location" class="mdc-button mdc-button--raised">
+                        Get My Location
+                    </button>
+                    
+                    <div class="location-actions">
+                        <button id="share-location" class="mdc-button mdc-button--raised" style="display: none;">
+                            Share Location
+                        </button>
+                        <button id="stop-sharing" class="mdc-button mdc-button--raised" style="display: none;">
+                            Stop Sharing
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="location.js"></script>
+</body>
+</html> 
